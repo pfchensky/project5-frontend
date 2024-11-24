@@ -101,6 +101,24 @@ function TravelPlanner() {
     setUser(user);
     console.log('Logged in user:', user);
   }
+  
+    // Function to delete a user
+    const handleDeleteUser = async (index) => {
+      const userToDelete = filteredUsers[index];
+  
+      try {
+        // Delete from backend
+        await axios.delete(`http://localhost:8080/deleteUser`, {
+          data: { userID: userToDelete.userID },
+        });
+  
+        // Remove user from state
+        setUsers((prevUsers) => prevUsers.filter((_, i) => i !== index));
+        setFilteredUsers((prevUsers) => prevUsers.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
+    };
 
   // Function to handle saving updated user info
   const handleSaveUser = async (index) => {
@@ -204,6 +222,7 @@ function TravelPlanner() {
                       <strong>Location:</strong> {user.location}
                     </p>
                     <button onClick={() => setEditingIndex(index)}>Edit</button>
+                    <button onClick={() => handleDeleteUser(index)}>Delete</button>
                   </>
                 )}
               </div>
@@ -263,7 +282,6 @@ function TravelPlanner() {
     </div>
   );
 }
-
 
 
 export default TravelPlanner;
