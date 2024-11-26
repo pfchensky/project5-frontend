@@ -11,76 +11,131 @@ function TravelPlanner() {
 
   const [user, setUser] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
-  
-  //const [userID,setUserID]=useState('');
-  const [interest, setInterest] = useState('');
-  const [location, setLocation] = useState('');
-  //const [id, setId] = useState('');
-  const [age, setAge] = useState('');
-  const [searchAge,setSearchAge]=useState('');
+
+  const [newInterest, setNewInterest] = useState(''); // For Add New User Info form
+  const [newLocation, setNewLocation] = useState('');
+  const [newAge, setNewAge] = useState('');
+
+  const [generateInterest, setGenerateInterest] = useState(''); // For Generate Travel Plan form
+  const [generateLocation, setGenerateLocation] = useState('');
+  const [generateAge, setGenerateAge] = useState('');
+  const [duration, setDuration] = useState('');
+  const [travelPlan, setTravelPlan] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+
   const [showUserInfo, setShowUserInfo] = useState(false);
-  
-  // function to call API to get all users info in DB
+
+  // Function to call API to get all users info in DB
   function displayAllUsers() {
-  	axios.get('http://localhost:8080/findAllUsers')
-      .then(response => {
-        setUsers(response.data);  // Axios packs the response in a 'data' property
+    axios
+      .get('http://localhost:8080/findAllUsers')
+      .then((response) => {
+        setUsers(response.data);
         setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         setError(error.message);
         setLoading(false);
       });
-  
-  };
+  }
 
-  // function to handle the user submit of a new user
-  // async used so we can use the "await", which causes a block until post is done
-  //   and makes for a little simpler code (no .then)
+  // Function to add a new user
   async function handleSubmit(event) {
-        event.preventDefault();
-        
-        if (!user) {
-          alert('Please log in to submit a user.');
-          return;
-        }
-
-        const postData = {
-            userID:user.email,
-            interest,
-            location,
-            age: parseInt(age, 10) // Convert string to integer
-        };
-
-        try {
-            const response = await axios.post('http://localhost:8080/saveUser', postData);
-            console.log('Response:', response.data);
-            displayAllUsers();
-        } catch (error) {
-            console.error('Error posting data:', error);
-        }
-    };
-  // Function to handle searching users by age
-  const handleSearchByAge = async (event) => {
     event.preventDefault();
-    if (searchAge.trim() === '') {
-        displayAllUsers();
-        return;
+
+    if (!user) {
+      alert('Please log in to submit a user.');
+      return;
     }
-    setLoading(true);
+
+    const postData = {
+      userID: user.email,
+      interest: newInterest,
+      location: newLocation,
+      age: parseInt(newAge, 10),
+    };
+
     try {
-        const response = await axios.get('http://localhost:8080/findByAge', {
-            params: { age: searchAge }
-        });
-        setUsers(response.data);
+      await axios.post('http://localhost:8080/saveUser', postData);
+      displayAllUsers();
+      setNewInterest('');
+      setNewLocation('');
+      setNewAge('');
     } catch (error) {
-        setError(error.message);
-    } finally {
-        setLoading(false);
+      console.error('Error posting data:', error);
+    }
+  }
+
+  // Function to populate the form with selected user data
+  const populateGeneratePlanForm = (user) => {
+    setSelectedUser(user);
+    setGenerateInterest(user.interest);
+    setGenerateLocation(user.location);
+    setGenerateAge(user.age);
+  };
+
+  // Function to generate a travel plan
+  const generateTravelPlan = async (event) => {
+    event.preventDefault();
+
+    if (!selectedUser) {
+      alert('Please select a user first.');
+      return;
+    }
+
+    if (!duration || isNaN(duration)) {
+      alert('Please enter a valid duration.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/ai/generate-travel-plan', {
+        age: selectedUser.age,
+        interest: selectedUser.interest,
+        location: selectedUser.location,
+        duration: parseInt(duration, 10),
+      });
+
+      setTravelPlan(response.data); // Save the generated plan
+    } catch (error) {
+      console.error('Error generating travel plan:', error);
     }
   };
 
-  // Toggle user filtering
+  // Function to save updated user info
+  const handleSaveUser = async (index) => {
+    const updatedUser = filteredUsers[index];
+
+    try {
+      await axios.put('http://localhost:8080/updateByUserID', updatedUser);
+      setUsers((prevUsers) =>
+        prevUsers.map((user, i) => (i === index ? updatedUser : user))
+      );
+      setFilteredUsers((prevUsers) =>
+        prevUsers.map((user, i) => (i === index ? updatedUser : user))
+      );
+      setEditingIndex(null);
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+
+  // Function to delete a user
+  const handleDeleteUser = async (index) => {
+    const userToDelete = filteredUsers[index];
+
+    try {
+      await axios.delete('http://localhost:8080/deleteUser', {
+        data: { userID: userToDelete.userID },
+      });
+
+      setUsers((prevUsers) => prevUsers.filter((_, i) => i !== index));
+      setFilteredUsers((prevUsers) => prevUsers.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
+
   useEffect(() => {
     if (showUserInfo && user) {
       const userInfo = users.filter((userinfo) => userinfo.userID === user.email);
@@ -89,72 +144,22 @@ function TravelPlanner() {
       setFilteredUsers(users); // Show all users
     }
   }, [users, showUserInfo, user]);
-  
-  // useEffect makes it so list of users shown when this component mounts
+
   useEffect(() => {
-    // Using Axios to fetch data
-   
-    displayAllUsers()
+    displayAllUsers();
   }, []);
 
   function HandleLogin(user) {
     setUser(user);
     console.log('Logged in user:', user);
   }
-  
-    // Function to delete a user
-    const handleDeleteUser = async (index) => {
-      const userToDelete = filteredUsers[index];
-  
-      try {
-        // Delete from backend
-        await axios.delete(`http://localhost:8080/deleteUser`, {
-          data: { userID: userToDelete.userID },
-        });
-  
-        // Remove user from state
-        setUsers((prevUsers) => prevUsers.filter((_, i) => i !== index));
-        setFilteredUsers((prevUsers) => prevUsers.filter((_, i) => i !== index));
-      } catch (error) {
-        console.error('Error deleting user:', error);
-      }
-    };
-
-  // Function to handle saving updated user info
-  const handleSaveUser = async (index) => {
-    const updatedUser = filteredUsers[index];
-
-    try {
-      await axios.put('http://localhost:8080/updateByUserID', updatedUser); // Save to backend
-      setUsers((prevUsers) =>
-        prevUsers.map((user, i) => (i === index ? updatedUser : user))
-      );
-      setFilteredUsers((prevUsers) =>
-        prevUsers.map((user, i) => (i === index ? updatedUser : user))
-      );
-      setEditingIndex(null); // Exit editing mode
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
-  };
-
-  // Function to handle editing field changes
-  const handleEditFieldChange = (index, field, value) => {
-    setFilteredUsers((prevUsers) =>
-      prevUsers.map((user, i) =>
-        i === index ? { ...user, [field]: value } : user
-      )
-    );
-  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  // this component displays a list of user and has a form for posting a new user
   return (
     <div className="user-list">
       <LoginForm LoginEvent={HandleLogin} />
-      {/* Conditional Rendering */}
       {user ? (
         <>
           <h2>Client Search List History</h2>
@@ -171,14 +176,17 @@ function TravelPlanner() {
               <div className="user-item" key={index}>
                 {editingIndex === index ? (
                   <>
-                    {/* Editable Fields */}
                     <label>
                       <strong>Interest:</strong>
                       <input
                         type="text"
                         value={user.interest}
                         onChange={(e) =>
-                          handleEditFieldChange(index, 'interest', e.target.value)
+                          setFilteredUsers((prevUsers) =>
+                            prevUsers.map((u, i) =>
+                              i === index ? { ...u, interest: e.target.value } : u
+                            )
+                          )
                         }
                       />
                     </label>
@@ -189,7 +197,11 @@ function TravelPlanner() {
                         type="number"
                         value={user.age}
                         onChange={(e) =>
-                          handleEditFieldChange(index, 'age', e.target.value)
+                          setFilteredUsers((prevUsers) =>
+                            prevUsers.map((u, i) =>
+                              i === index ? { ...u, age: e.target.value } : u
+                            )
+                          )
                         }
                       />
                     </label>
@@ -200,7 +212,11 @@ function TravelPlanner() {
                         type="text"
                         value={user.location}
                         onChange={(e) =>
-                          handleEditFieldChange(index, 'location', e.target.value)
+                          setFilteredUsers((prevUsers) =>
+                            prevUsers.map((u, i) =>
+                              i === index ? { ...u, location: e.target.value } : u
+                            )
+                          )
                         }
                       />
                     </label>
@@ -210,7 +226,6 @@ function TravelPlanner() {
                   </>
                 ) : (
                   <>
-                    {/* Display Fields */}
                     <h3>UserID: {user.userID}</h3>
                     <p>
                       <strong>Interest:</strong> {user.interest}
@@ -223,6 +238,9 @@ function TravelPlanner() {
                     </p>
                     <button onClick={() => setEditingIndex(index)}>Edit</button>
                     <button onClick={() => handleDeleteUser(index)}>Delete</button>
+                    <button onClick={() => populateGeneratePlanForm(user)}>
+                      Generate Travel Plan
+                    </button>
                   </>
                 )}
               </div>
@@ -230,14 +248,15 @@ function TravelPlanner() {
           ) : (
             <p>No users to display.</p>
           )}
+
           <h2>Add a New User Info</h2>
           <form onSubmit={handleSubmit}>
             <label>
               Interest:
               <input
                 type="text"
-                value={interest}
-                onChange={(e) => setInterest(e.target.value)}
+                value={newInterest}
+                onChange={(e) => setNewInterest(e.target.value)}
               />
             </label>
             <br />
@@ -245,8 +264,8 @@ function TravelPlanner() {
               Location:
               <input
                 type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={newLocation}
+                onChange={(e) => setNewLocation(e.target.value)}
               />
             </label>
             <br />
@@ -254,27 +273,49 @@ function TravelPlanner() {
               Age:
               <input
                 type="number"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
+                value={newAge}
+                onChange={(e) => setNewAge(e.target.value)}
               />
             </label>
             <br />
             <button type="submit">Submit</button>
           </form>
 
-          <h2>Search By Age</h2>
-          <form onSubmit={handleSearchByAge}>
+          <h2>Generate Travel Plan</h2>
+          <form onSubmit={generateTravelPlan}>
+            <label>
+              Interest:
+              <input type="text" value={generateInterest} readOnly />
+            </label>
+            <br />
+            <label>
+              Location:
+              <input type="text" value={generateLocation} readOnly />
+            </label>
+            <br />
             <label>
               Age:
+              <input type="number" value={generateAge} readOnly />
+            </label>
+            <br />
+            <label>
+              Duration (days):
               <input
                 type="number"
-                value={searchAge}
-                onChange={(e) => setSearchAge(e.target.value)}
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
               />
             </label>
             <br />
-            <button type="submit">Search</button>
+            <button type="submit">Generate</button>
           </form>
+
+          {travelPlan && (
+            <div className="travel-plan">
+              <h2>Travel Plan for {selectedUser?.userID}</h2>
+              <p>{travelPlan}</p>
+            </div>
+          )}
         </>
       ) : (
         <p>Please log in to see the user list.</p>
@@ -282,6 +323,5 @@ function TravelPlanner() {
     </div>
   );
 }
-
 
 export default TravelPlanner;
