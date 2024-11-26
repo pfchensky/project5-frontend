@@ -13,11 +13,11 @@ function TravelPlanner() {
   const [editingIndex, setEditingIndex] = useState(null);
 
   const [newInterest, setNewInterest] = useState(''); // For Add New User Info form
-  const [newLocation, setNewLocation] = useState('');
+  const [newDestination, setNewDestination] = useState('');
   const [newAge, setNewAge] = useState('');
 
   const [generateInterest, setGenerateInterest] = useState(''); // For Generate Travel Plan form
-  const [generateLocation, setGenerateLocation] = useState('');
+  const [generateDestination, setGenerateDestination] = useState('');
   const [generateAge, setGenerateAge] = useState('');
   const [duration, setDuration] = useState('');
   const [travelPlan, setTravelPlan] = useState('');
@@ -51,7 +51,7 @@ function TravelPlanner() {
     const postData = {
       userID: user.email,
       interest: newInterest,
-      location: newLocation,
+      destination: newDestination,
       age: parseInt(newAge, 10),
     };
 
@@ -59,7 +59,7 @@ function TravelPlanner() {
       await axios.post('http://localhost:8080/saveUser', postData);
       displayAllUsers();
       setNewInterest('');
-      setNewLocation('');
+      setNewDestination('');
       setNewAge('');
     } catch (error) {
       console.error('Error posting data:', error);
@@ -70,7 +70,7 @@ function TravelPlanner() {
   const populateGeneratePlanForm = (user) => {
     setSelectedUser(user);
     setGenerateInterest(user.interest);
-    setGenerateLocation(user.location);
+    setGenerateDestination(user.destination);
     setGenerateAge(user.age);
   };
 
@@ -92,7 +92,7 @@ function TravelPlanner() {
       const response = await axios.post('http://localhost:8080/api/ai/generate-travel-plan', {
         age: selectedUser.age,
         interest: selectedUser.interest,
-        location: selectedUser.location,
+        destination: selectedUser.destination,
         duration: parseInt(duration, 10),
       });
 
@@ -207,14 +207,14 @@ function TravelPlanner() {
                     </label>
                     <br />
                     <label>
-                      <strong>Location:</strong>
+                      <strong>Destination:</strong>
                       <input
                         type="text"
-                        value={user.location}
+                        value={user.destination}
                         onChange={(e) =>
                           setFilteredUsers((prevUsers) =>
                             prevUsers.map((u, i) =>
-                              i === index ? { ...u, location: e.target.value } : u
+                              i === index ? { ...u, destination: e.target.value } : u
                             )
                           )
                         }
@@ -234,7 +234,7 @@ function TravelPlanner() {
                       <strong>Age:</strong> {user.age}
                     </p>
                     <p>
-                      <strong>Location:</strong> {user.location}
+                      <strong>Destination:</strong> {user.destination}
                     </p>
                     <button onClick={() => setEditingIndex(index)}>Edit</button>
                     <button onClick={() => handleDeleteUser(index)}>Delete</button>
@@ -261,11 +261,11 @@ function TravelPlanner() {
             </label>
             <br />
             <label>
-              Location:
+              Destination:
               <input
                 type="text"
-                value={newLocation}
-                onChange={(e) => setNewLocation(e.target.value)}
+                value={newDestination}
+                onChange={(e) => setNewDestination(e.target.value)}
               />
             </label>
             <br />
@@ -289,8 +289,8 @@ function TravelPlanner() {
             </label>
             <br />
             <label>
-              Location:
-              <input type="text" value={generateLocation} readOnly />
+              Destination:
+              <input type="text" value={generateDestination} readOnly />
             </label>
             <br />
             <label>
