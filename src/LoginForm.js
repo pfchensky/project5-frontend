@@ -5,15 +5,17 @@ import React, {  useState, useEffect } from 'react';
 // LoginSuccessful is a function sent in by parent component
 function LoginForm({LoginEvent}) {
 	const firebaseConfig = {
-		apiKey: "AIzaSyAOZva2bfOU6TiBqFUTdgDz6JVhngTEEy4",
-		authDomain: "fir-sample-e4fb3.firebaseapp.com",
-		projectId: "fir-sample-e4fb3",
-		storageBucket: "fir-sample-e4fb3.firebasestorage.app",
-		messagingSenderId: "475492564840",
-		appId: "1:475492564840:web:3c73bcfe0d6e8d29a460dd",
+		apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+		authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+		projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+		storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+		messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+		appId: process.env.REACT_APP_FIREBASE_APP_ID,
 	};
 
 	initializeApp(firebaseConfig);
+	//console.log(process.env.REACT_APP_FIREBASE_API_KEY);
+
 	
 	const [loggedUser, setLoggedUser] = useState('');
 
