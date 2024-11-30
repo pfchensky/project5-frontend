@@ -1,0 +1,72 @@
+.user-manager-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two columns for top half */
+  grid-template-rows: 1fr 1fr;   /* Two rows for bottom half */
+  gap: 20px;
+  padding: 20px;
+}
+
+.user-list-section, .add-user-section, .edit-user-section, .selected-user-section {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.user-list-section, .add-user-section {
+  grid-row: 1 / 2; /* Top row */
+}
+
+.edit-user-section, .selected-user-section {
+  grid-row: 2 / 3; /* Bottom row */
+}
+
+.user-list-section {
+  grid-column: 1 / 2; /* Left side */
+}
+
+.add-user-section {
+  grid-column: 2 / 3; /* Right side */
+}
+
+.edit-user-section {
+  grid-column: 1 / 2; /* Left side */
+}
+
+.selected-user-section {
+  grid-column: 2 / 3; /* Right side */
+}
+
+button {
+  margin: 5px 0;
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  margin-right: 5px;
+}
+
+.add-user-section input, .edit-user-section input {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.edit-user-section {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f1f1f1;
+}
