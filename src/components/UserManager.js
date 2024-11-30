@@ -1,169 +1,216 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './UserManager.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function UserManager() {
+const UserManager = ({ user }) => {
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ userName: '', interest: '', age: '', gender: '' });
-  const [editingUser, setEditingUser] = useState(null);
-  const [selectedUserDetails, setSelectedUserDetails] = useState([]);
+  const [newUser, setNewUser] = useState({
+    userName: "",
+    interest: "",
+    age: "",
+    gender: "",
+  });
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [travelInfo, setTravelInfo] = useState({
+    destination: "",
+    duration: "",
+    month: "",
+  });
+  const [generatedPlan, setGeneratedPlan] = useState(null);
 
-  // Fetch all users on load
+  // Fetch all users when the component mounts
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Fetch users from backend
+  // Fetch all users from the backend
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/findAllUsers');
+      const response = await axios.get("http://localhost:8080/findAllUsers");
       setUsers(response.data);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("There was an error fetching the users!", error);
     }
   };
 
-  // Add a new user
+  // Handle input changes for the new user form
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser({
+      ...newUser,
+      [name]: value,
+    });
+  };
+
+  // Save a new user to the backend
   const saveUser = async () => {
     try {
-      const userData = { ...newUser };
-      await axios.post('http://localhost:8080/saveUser', userData);
-      fetchUsers();
-      setNewUser({ userName: '', interest: '', age: '', gender: '' });
+      const userData = { ...newUser, userID: user.userID }; // Use Google ID as userID
+      const response = await axios.post("http://localhost:8080/saveUser", userData);
+      console.log("User saved:", response.data);
+      fetchUsers(); // Re-fetch the users to update the list
+      setNewUser({ userName: "", interest: "", age: "", gender: "" }); // Clear form
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error("Error saving user:", error);
     }
   };
 
-  // Update an existing user
-  const updateUser = async (userID) => {
+  // Edit an existing user (update user info)
+  const editUser = async (userID) => {
+    const updatedUser = { ...selectedUser };
     try {
-      await axios.put(`http://localhost:8080/updateUser/${userID}`, editingUser);
-      fetchUsers();
-      setEditingUser(null);
+      const response = await axios.put(`http://localhost:8080/updateUser/${userID}`, updatedUser);
+      console.log("User updated:", response.data);
+      fetchUsers(); // Re-fetch users
+      setSelectedUser(null); // Clear selected user after update
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error("Error editing user:", error);
     }
   };
 
-  // Delete an existing user
-  const deleteUser = async (userID) => {
+  // Delete a user by username
+  const deleteUser = async (userName) => {
     try {
-      await axios.delete(`http://localhost:8080/deleteUser/${userID}`);
-      fetchUsers();
+      const response = await axios.delete(`http://localhost:8080/deleteByUserName?userName=${userName}`);
+      console.log("User deleted:", response.data);
+      fetchUsers(); // Re-fetch users
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error("Error deleting user:", error);
     }
   };
 
-  // Select a user for detailed view
+  // Handle user selection (for generating travel plan)
   const handleSelectUser = (user) => {
-    setSelectedUserDetails((prev) => [...prev, user]);
+    setSelectedUsers((prevUsers) => [...prevUsers, user]);
   };
 
-  // Handle input changes
-  const handleInputChange = (e, isEditing = false) => {
+  // Handle travel info input changes
+  const handleTravelInfoChange = (e) => {
     const { name, value } = e.target;
-    if (isEditing) {
-      setEditingUser((prev) => ({ ...prev, [name]: value }));
-    } else {
-      setNewUser((prev) => ({ ...prev, [name]: value }));
+    setTravelInfo({
+      ...travelInfo,
+      [name]: value,
+    });
+  };
+
+  // Generate travel plan
+  const handleGeneratePlan = async () => {
+    try {
+      const planData = { selectedUsers, travelInfo };
+      const response = await axios.post("http://localhost:8080/generateTravelPlan", planData);
+      setGeneratedPlan(response.data); // Set the generated plan from the backend
+    } catch (error) {
+      console.error("Error generating plan:", error);
     }
   };
 
   return (
-    <div className="user-manager-grid">
-      {/* User List */}
-      <div className="user-list-section">
-        <h2>Users</h2>
-        {users.map((user) => (
-          <div key={user.userID} className="user-item">
-            <p>
-              <strong>{user.userName}</strong> - {user.age} ({user.gender})<br />
-              Interest: {user.interest}
-            </p>
-            <button onClick={() => handleSelectUser(user)}>Select</button>
-            <button onClick={() => setEditingUser(user)}>Edit</button>
-            <button onClick={() => deleteUser(user.userID)}>Delete</button>
-          </div>
-        ))}
-      </div>
+    <div>
+      <h1>User Manager</h1>
 
-      {/* Add User */}
-      <div className="add-user-section">
+      {/* Form to add new user */}
+      <div>
         <h2>Add New User</h2>
         <input
           type="text"
           name="userName"
+          placeholder="UserName"
           value={newUser.userName}
           onChange={handleInputChange}
-          placeholder="Username"
         />
         <input
           type="number"
           name="age"
+          placeholder="Age"
           value={newUser.age}
           onChange={handleInputChange}
-          placeholder="Age"
         />
         <input
           type="text"
           name="gender"
+          placeholder="Gender"
           value={newUser.gender}
           onChange={handleInputChange}
-          placeholder="Gender"
         />
         <input
           type="text"
           name="interest"
+          placeholder="Interest"
           value={newUser.interest}
           onChange={handleInputChange}
-          placeholder="Interest"
         />
-        <button onClick={saveUser}>Add User</button>
+        <button onClick={saveUser}>Save User</button>
       </div>
 
-      {/* Edit User */}
-      <div className="edit-user-section">
-        <h2>Edit User</h2>
-        {editingUser ? (
-          <>
-            <input
-              type="number"
-              name="age"
-              value={editingUser.age}
-              onChange={(e) => handleInputChange(e, true)}
-              placeholder="Age"
-            />
-            <input
-              type="text"
-              name="interest"
-              value={editingUser.interest}
-              onChange={(e) => handleInputChange(e, true)}
-              placeholder="Interest"
-            />
-            <button onClick={() => updateUser(editingUser.userID)}>Save Changes</button>
-            <button onClick={() => setEditingUser(null)}>Cancel</button>
-          </>
-        ) : (
-          <p>Select a user to edit.</p>
-        )}
+      {/* List of existing users */}
+      <div>
+        <h2>All Users</h2>
+        <ul>
+          {users.map((user) => (
+            <li key={user.id}>
+              <div>
+                <span>{user.userName}</span>
+                <span> Age: {user.age}</span>
+                <span> Gender: {user.gender}</span>
+                <span> Interest: {user.interest}</span>
+              </div>
+              <button onClick={() => handleSelectUser(user)}>Select</button>
+              <button onClick={() => editUser(user.userID)}>Update</button>
+              <button onClick={() => deleteUser(user.userName)}>Delete</button>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Selected User Details */}
-      <div className="selected-user-section">
-        <h2>Selected User Details</h2>
-        {selectedUserDetails.map((user, index) => (
-          <div key={index} className="selected-user-item">
-            <p>
-              <strong>{user.userName}</strong> - {user.age} ({user.gender})<br />
-              Interest: {user.interest}
-            </p>
-          </div>
-        ))}
+      {/* Display selected users' info for travel plan */}
+      <div>
+        <h2>Selected Users for Travel Plan</h2>
+        <ul>
+          {selectedUsers.map((user) => (
+            <li key={user.userID}>
+              {user.userName} ({user.age}, {user.gender}, {user.interest})
+            </li>
+          ))}
+        </ul>
       </div>
+
+      {/* Form for travel information */}
+      <div>
+        <h2>Enter Travel Information</h2>
+        <input
+          type="text"
+          name="destination"
+          placeholder="Destination"
+          value={travelInfo.destination}
+          onChange={handleTravelInfoChange}
+        />
+        <input
+          type="number"
+          name="duration"
+          placeholder="Duration (in days)"
+          value={travelInfo.duration}
+          onChange={handleTravelInfoChange}
+        />
+        <input
+          type="text"
+          name="month"
+          placeholder="Month"
+          value={travelInfo.month}
+          onChange={handleTravelInfoChange}
+        />
+        <button onClick={handleGeneratePlan}>Generate Plan</button>
+      </div>
+
+      {/* Display generated travel plan */}
+      {generatedPlan && (
+        <div>
+          <h2>Generated Travel Plan</h2>
+          <pre>{JSON.stringify(generatedPlan, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default UserManager;
+
