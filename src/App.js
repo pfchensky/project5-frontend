@@ -1,70 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
 import LoginForm from './components/LoginForm';
-import UserManager from './components/UserManager';
-import TravelPlanner from './components/TravelPlanner';
-import './App.css';
+import UserList from './components/UserList';
+import TripForm from './components/TripForm';
+import TravelPlan from './components/TravelPlan';
+import NewUserForm from './components/NewUserForm';  // Import NewUserForm
+import { generateTravelPlan, fetchAllUsers, updateUser, deleteUser } from './services/api';
 
 function App() {
-  const firebaseConfig = {
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  };
+  const [currentUser, setCurrentUser] = useState(null);
+  const [selectedUsers, setSelectedUsers] = useState([]);  // Track selected users
+  const [travelPlan, setTravelPlan] = useState('');
+  const [users, setUsers] = useState([]);  // For storing all users
 
-  // Initialize Firebase
-  initializeApp(firebaseConfig);
-
-  const [user, setUser] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);  // State to track selected user
-
-  const handleLogin = (userData) => {
-    setUser(userData);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
-
+  // Fetch all users when the app is loaded
   useEffect(() => {
-    const auth = getAuth();
-    auth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          userID: firebaseUser.uid,
-          userName: firebaseUser.displayName,
-          email: firebaseUser.email,
-        });
-      } else {
-        setUser(null);
-      }
-    });
+    fetchAllUsers().then(setUsers);
   }, []);
+
+  const handleTripSubmit = (trip) => {
+    const usersWithTrips = selectedUsers.map((user) => ({
+      ...user,
+      trip,
+    }));
+    generateTravelPlan(usersWithTrips).then((plans) => setTravelPlan(plans.join('\n\n')));
+  };
+
+  const handleUserAdded = (newUser) => {
+    setUsers([...users, newUser]);  // Update users list when a new user is added
+  };
+
+  const handleUserSelect = (user) => {
+    setSelectedUsers([...selectedUsers, user]);  // Add selected user to the list
+  };
+
+  const handleUserDeselect = (user) => {
+    setSelectedUsers(selectedUsers.filter((u) => u.userName !== user.userName));  // Remove user from the selected list
+  };
+
+  const handleUpdateUser = (userName) => {
+    const updatedInterest = prompt('Enter new interest:');
+    if (updatedInterest) {
+      updateUser(userName, { interest: updatedInterest }).then(() => {
+        fetchAllUsers().then(setUsers);  // Fetch updated users list
+      });
+    }
+  };
+
+  const handleDeleteUser = (userName) => {
+    deleteUser(userName).then(() => {
+      fetchAllUsers().then(setUsers);  // Fetch updated users list
+    });
+  };
 
   return (
     <div className="App">
-      <h1>Travel Planner</h1>
-
-      {!user ? (
-        <LoginForm onLogin={handleLogin} />
-      ) : (
-        <div className="content">
-          <div className="user-info">
-            <p>Welcome, {user.userName}!</p>
-            <button onClick={handleLogout}>Log Out</button>
-          </div>
-
-          <UserManager user={user} setSelectedUser={setSelectedUser} />
-
-          {selectedUser && (
-            <TravelPlanner selectedUsers={[selectedUser]} />
-          )}
-        </div>
+      <LoginForm onLogin={setCurrentUser} />
+      {currentUser && (
+        <>
+          <UserList
+            users={users}
+            onUserSelect={handleUserSelect}  // Select user to add to the list
+            onUserDeselect={handleUserDeselect}  // Deselect user from the list
+            onUpdateUser={handleUpdateUser}  // Update user details
+            onDeleteUser={handleDeleteUser}  // Delete user from the list
+          />
+          <h2>Selected Users</h2>
+          <ul>
+            {selectedUsers.map((user) => (
+              <li key={user.userName}>
+                {user.userName} ({user.age}, {user.gender}, {user.interest})
+                <button onClick={() => handleUserDeselect(user)}>Remove</button>
+              </li>
+            ))}
+          </ul>
+          <TripForm onSubmit={handleTripSubmit} />
+          <NewUserForm onUserAdded={handleUserAdded} />  {/* Render NewUserForm */}
+        </>
       )}
+      {travelPlan && <TravelPlan plan={travelPlan} />}
     </div>
   );
 }

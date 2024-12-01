@@ -16,55 +16,62 @@ function LoginForm({ onLogin }) {
   initializeApp(firebaseConfig);
 
   const [loggedUser, setLoggedUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const signInWithGoogle = () => {
+    setLoading(true);
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
     signInWithPopup(auth, provider)
       .then((result) => {
-        const user = result.user;
-        setLoggedUser(user);
-        onLogin(user);
+        setLoggedUser(result.user);
+        onLogin(result.user);
+        setLoading(false);
       })
       .catch((error) => {
-        console.error('Error signing in:', error);
+        setError(error.message);
+        setLoading(false);
       });
   };
 
   const logoutGoogle = () => {
     const auth = getAuth();
+    setLoading(true);
     signOut(auth)
       .then(() => {
         setLoggedUser(null);
         onLogin(null);
+        setLoading(false);
       })
       .catch((error) => {
-        console.error('Error logging out:', error);
+        setError(error.message);
+        setLoading(false);
       });
   };
 
   useEffect(() => {
     const auth = getAuth();
     auth.onAuthStateChanged((user) => {
-      if (user) {
-        setLoggedUser(user);
-        onLogin(user);
-      } else {
-        setLoggedUser(null);
-        onLogin(null);
-      }
+      setLoggedUser(user);
+      onLogin(user);
     });
   }, [onLogin]);
 
   return (
     <div className="login-form">
-      {loggedUser ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : loggedUser ? (
         <>
-          <p>User: {loggedUser.displayName}</p>
+          <p>Welcome, {loggedUser.displayName}</p>
           <button onClick={logoutGoogle}>Log out</button>
         </>
       ) : (
-        <button onClick={signInWithGoogle}>Sign in with Google</button>
+        <>
+          <button onClick={signInWithGoogle}>Sign in with Google</button>
+          {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+        </>
       )}
     </div>
   );
