@@ -8,10 +8,20 @@ function UserList({ onUserSelect }) {
 
   useEffect(() => {
     setLoading(true);
-    fetchAllUsers().then((users) => {
-      setUsers(users);
-      setLoading(false);
-    });
+    fetchAllUsers()
+      .then((data) => {
+        // Ensure the response is an array
+        if (Array.isArray(data)) {
+          setUsers(data);
+        } else {
+          setUsers([]); // Fallback if the response is not an array
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setUsers([]); // Set to empty array if there's an error
+      });
   }, []);
 
   const handleUpdate = (userName) => {
@@ -51,19 +61,23 @@ function UserList({ onUserSelect }) {
         <>
           <h3>Available Users</h3>
           <ul>
-            {users.map((user) => (
-              <li key={user.userName}>
-                {user.userName} ({user.age}, {user.gender}, {user.interest})
-                <button onClick={() => handleUpdate(user.userName)}>Update</button>
-                <button onClick={() => handleDelete(user.userName)}>Delete</button>
-                <button
-                  onClick={() => handleSelect(user)}
-                  disabled={selectedUsers.some((selectedUser) => selectedUser.userName === user.userName)}
-                >
-                  {selectedUsers.some((selectedUser) => selectedUser.userName === user.userName) ? 'Selected' : 'Select'}
-                </button>
-              </li>
-            ))}
+            {Array.isArray(users) && users.length > 0 ? (
+              users.map((user) => (
+                <li key={user.userName}>
+                  {user.userName} ({user.age}, {user.gender}, {user.interest})
+                  <button onClick={() => handleUpdate(user.userName)}>Update</button>
+                  <button onClick={() => handleDelete(user.userName)}>Delete</button>
+                  <button
+                    onClick={() => handleSelect(user)}
+                    disabled={selectedUsers.some((selectedUser) => selectedUser.userName === user.userName)}
+                  >
+                    {selectedUsers.some((selectedUser) => selectedUser.userName === user.userName) ? 'Selected' : 'Select'}
+                  </button>
+                </li>
+              ))
+            ) : (
+              <p>No users found</p>
+            )}
           </ul>
         </>
       )}

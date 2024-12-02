@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { addUser } from '../services/api';  // We'll update the API service later
 
-function NewUserForm({ onUserAdded }) {
+function NewUserForm({ onUserAdded,userEmail }) {
   const [userName, setUserName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
@@ -16,8 +16,12 @@ function NewUserForm({ onUserAdded }) {
       setError('All fields are required!');
       return;
     }
+    if(!userEmail){
+      setError('User is not logged in!');
+      return;
+    }
 
-    const newUser = { userName, age, gender, interest };
+    const newUser = { userID: userEmail,userName, age, gender, interest };
 
     try {
       await addUser(newUser); // Call the API to add the user

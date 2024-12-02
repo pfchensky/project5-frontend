@@ -64,7 +64,7 @@ function LoginForm({ onLogin }) {
         <p>Loading...</p>
       ) : loggedUser ? (
         <>
-          <p>Welcome, {loggedUser.displayName}</p>
+          <p>Welcome, <strong>{loggedUser.displayName} </strong></p>
           <button onClick={logoutGoogle}>Log out</button>
         </>
       ) : (

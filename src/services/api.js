@@ -37,5 +37,11 @@ export const generateTravelPlan = async (data) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  return response.json();
+
+  if (!response.ok) {
+    throw new Error('Failed to generate travel plan');
+  }
+
+  const result = await response.text();  // Use .text() to handle plain text
+  return result;  // Return plain text response
 };

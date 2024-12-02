@@ -13,6 +13,11 @@ function TripForm({ onSubmit }) {
       setError('All fields are required!');
       return;
     }
+      // Check if the duration is a valid number
+      if (isNaN(duration) || duration <= 0) {
+        setError('Duration must be a valid positive number!');
+        return;
+      }
 
     setError('');
     onSubmit({ destination, duration, month });

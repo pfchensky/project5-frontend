@@ -22,8 +22,15 @@ function App() {
       ...user,
       trip,
     }));
-    generateTravelPlan(usersWithTrips).then((plans) => setTravelPlan(plans.join('\n\n')));
+    
+    generateTravelPlan(usersWithTrips).then((plans) => {
+      console.log('Generated travel plan:', plans);
+      setTravelPlan(plans);  // Set plain text travel plan
+    }).catch(error => {
+      console.error('Error generating travel plan:', error);
+    });
   };
+  
 
   const handleUserAdded = (newUser) => {
     setUsers([...users, newUser]);  // Update users list when a new user is added
@@ -74,8 +81,10 @@ function App() {
             ))}
           </ul>
           <TripForm onSubmit={handleTripSubmit} />
-          <NewUserForm onUserAdded={handleUserAdded} />  {/* Render NewUserForm */}
-        </>
+          <NewUserForm 
+            onUserAdded={handleUserAdded} 
+            userEmail={currentUser.email}/>  {/* Render NewUserForm */}
+          </>
       )}
       {travelPlan && <TravelPlan plan={travelPlan} />}
     </div>
