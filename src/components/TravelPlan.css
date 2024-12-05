@@ -1,0 +1,40 @@
+.travel-plan-container {
+    background-color: #f0f8ff;  /* Light blue background */
+    margin-top: 20px;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+  }
+  
+  h2 {
+    color: #4CAF50;  /* Green for heading */
+  }
+  
+  .toggle-btn {
+    cursor: pointer;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4682B4;  /* Blue for button */
+    color: white;
+    transition: all 0.3s ease;
+  }
+  
+  .toggle-btn:hover {
+    background-color: #5a79b3;  /* Hover effect for button */
+  }
+  
+  .plan-content {
+    background-color: #ffffff;  /* White background for plan content */
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 10px;
+    border: 1px solid #ddd;  /* Light gray border */
+    font-family: 'Courier New', Courier, monospace;  /* Monospaced font for plan content */
+    color: #333;
+    white-space: pre-wrap;  /* Wrap long lines of text */
+    word-wrap: break-word;  /* Break long words onto the next line */
+  }
+  

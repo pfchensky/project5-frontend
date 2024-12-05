@@ -59,20 +59,27 @@ function LoginForm({ onLogin }) {
   }, [onLogin]);
 
   return (
-    <div className="login-form">
-      {loading ? (
-        <p>Loading...</p>
-      ) : loggedUser ? (
-        <>
-          <p>Welcome, <strong>{loggedUser.displayName} </strong></p>
-          <button onClick={logoutGoogle}>Log out</button>
-        </>
-      ) : (
-        <>
-          <button onClick={signInWithGoogle}>Sign in with Google</button>
-          {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-        </>
-      )}
+    <div className="login-form-container">
+      <h2 className="login-form-header">Login</h2>
+      <form className="login-form">
+        {loading ? (
+          <p>Loading...</p>
+        ) : loggedUser ? (
+          <>
+            <p>
+              Welcome, <strong>{loggedUser.displayName}</strong>
+            </p>
+            <button onClick={logoutGoogle} className="submit-button">Log out</button>
+          </>
+        ) : (
+          <>
+            <button className="google-button" onClick={signInWithGoogle}>
+              Sign in with Google
+            </button>
+            {error && <p className="error-message">Error: {error}</p>}
+          </>
+        )}
+      </form>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { addUser } from '../services/api';  // We'll update the API service later
+import { addUser } from '../services/api';  
+import './NewUserForm.css';  // Ensure correct path to the CSS file
 
-function NewUserForm({ onUserAdded,userEmail }) {
+function NewUserForm({ onUserAdded, userEmail }) {
   const [userName, setUserName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
@@ -12,26 +13,31 @@ function NewUserForm({ onUserAdded,userEmail }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Input validation
     if (!userName || !age || !gender || !interest) {
       setError('All fields are required!');
-      return;
-    }
-    if(!userEmail){
-      setError('User is not logged in!');
+      setSuccess('');
       return;
     }
 
-    const newUser = { userID: userEmail,userName, age, gender, interest };
+    if (!userEmail) {
+      setError('User is not logged in!');
+      setSuccess('');
+      return;
+    }
+
+    const newUser = { userID: userEmail, userName, age, gender, interest };
 
     try {
-      await addUser(newUser); // Call the API to add the user
+      // Call API to add user
+      await addUser(newUser);
       setSuccess('User added successfully!');
       setError('');
       setUserName('');
       setAge('');
       setGender('');
       setInterest('');
-      onUserAdded(newUser); // Update the user list in parent component
+      onUserAdded(newUser);  // Update parent component
     } catch (err) {
       setError('Failed to add user. Please try again.');
       setSuccess('');
@@ -39,39 +45,55 @@ function NewUserForm({ onUserAdded,userEmail }) {
   };
 
   return (
-    <div>
-      <h2>Add New User</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="new-user-form-container">
+      <h2 className="new-user-form-header">Create New User</h2>
+      <form onSubmit={handleSubmit} className="new-user-form">
+        
+        {/* Username Input */}
         <input
           type="text"
           placeholder="Username"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
+          className="input-field"
         />
+        
+        {/* Age Input */}
         <input
           type="number"
           placeholder="Age"
           value={age}
           onChange={(e) => setAge(e.target.value)}
+          className="input-field"
         />
+        
+        {/* Gender Dropdown */}
         <select
           value={gender}
           onChange={(e) => setGender(e.target.value)}
+          className="input-field"
         >
           <option value="">Select Gender</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
           <option value="Other">Other</option>
         </select>
+
+        {/* Interest Input */}
         <input
           type="text"
           placeholder="Interest"
           value={interest}
           onChange={(e) => setInterest(e.target.value)}
+          className="input-field"
         />
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
-        <button type="submit">Add User</button>
+
+        {/* Error and Success Messages */}
+        {error && <p className="error-message">{error}</p>}
+        {success && <p className="success-message">{success}</p>}
+
+        {/* Submit Button */}
+        <button type="submit" className="submit-button">Add User</button>
       </form>
     </div>
   );

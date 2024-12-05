@@ -5,6 +5,8 @@ import TripForm from './components/TripForm';
 import TravelPlan from './components/TravelPlan';
 import NewUserForm from './components/NewUserForm';  // Import NewUserForm
 import { generateTravelPlan, fetchAllUsers, updateUser, deleteUser } from './services/api';
+import './App.css';
+import './components/UserList.css';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -30,7 +32,6 @@ function App() {
       console.error('Error generating travel plan:', error);
     });
   };
-  
 
   const handleUserAdded = (newUser) => {
     setUsers([...users, newUser]);  // Update users list when a new user is added
@@ -60,31 +61,43 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="App" style={{ maxWidth: '100vw', margin: '0 auto' }}>
       <LoginForm onLogin={setCurrentUser} />
       {currentUser && (
         <>
-          <UserList
-            users={users}
-            onUserSelect={handleUserSelect}  // Select user to add to the list
-            onUserDeselect={handleUserDeselect}  // Deselect user from the list
-            onUpdateUser={handleUpdateUser}  // Update user details
-            onDeleteUser={handleDeleteUser}  // Delete user from the list
-          />
-          <h2>Selected Users</h2>
-          <ul>
-            {selectedUsers.map((user) => (
-              <li key={user.userName}>
-                {user.userName} ({user.age}, {user.gender}, {user.interest})
-                <button onClick={() => handleUserDeselect(user)}>Remove</button>
-              </li>
-            ))}
-          </ul>
+          <NewUserForm onUserAdded={handleUserAdded} userEmail={currentUser.email} />
+          
+          {/* Main Layout Container */}
+          <div className="main-container">
+            {/* Left column - User List */}
+            <div className="user-list-container">
+              <h2>Available Users</h2>
+              <UserList
+                users={users}
+                onUserSelect={handleUserSelect}  // Select user to add to the list
+                onUserDeselect={handleUserDeselect}  // Deselect user from the list
+                onUpdateUser={handleUpdateUser}  // Update user details
+                onDeleteUser={handleDeleteUser}  // Delete user from the list
+              />
+            </div>
+
+            {/* Right column - Selected Users */}
+            <div className="selected-users">
+              <h2>Selected Users</h2>
+              <ul>
+                {selectedUsers.map((user) => (
+                  <li key={user.userName}>
+                    {user.userName} ({user.age}, {user.gender}, {user.interest})
+                    <button onClick={() => handleUserDeselect(user)}>Remove</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Trip Form */}
           <TripForm onSubmit={handleTripSubmit} />
-          <NewUserForm 
-            onUserAdded={handleUserAdded} 
-            userEmail={currentUser.email}/>  {/* Render NewUserForm */}
-          </>
+        </>
       )}
       {travelPlan && <TravelPlan plan={travelPlan} />}
     </div>
