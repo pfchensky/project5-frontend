@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import LoginForm from './components/LoginForm';
+import WelcomePage from './components/WelcomePage';  // Import the modified WelcomePage
 import UserList from './components/UserList';
 import TripForm from './components/TripForm';
 import TravelPlan from './components/TravelPlan';
-import NewUserForm from './components/NewUserForm';  // Import NewUserForm
+import NewUserForm from './components/NewUserForm';
 import { generateTravelPlan, fetchAllUsers, updateUser, deleteUser } from './services/api';
 import './App.css';
 import './components/UserList.css';
@@ -24,7 +24,7 @@ function App() {
       ...user,
       trip,
     }));
-    
+
     generateTravelPlan(usersWithTrips).then((plans) => {
       console.log('Generated travel plan:', plans);
       setTravelPlan(plans);  // Set plain text travel plan
@@ -60,9 +60,14 @@ function App() {
     });
   };
 
+  const handleLogin = (user) => {
+    setCurrentUser(user);  // Update current user after login
+  };
+
   return (
-    <div className="App" style={{ maxWidth: '100vw', margin: '0 auto' }}>
-      <LoginForm onLogin={setCurrentUser} />
+    <div className="App">
+      <WelcomePage onLogin={handleLogin} /> {/* Render WelcomePage which contains login */}
+      
       {currentUser && (
         <>
           <NewUserForm onUserAdded={handleUserAdded} userEmail={currentUser.email} />
@@ -74,10 +79,10 @@ function App() {
               <h2>Available Users</h2>
               <UserList
                 users={users}
-                onUserSelect={handleUserSelect}  // Select user to add to the list
-                onUserDeselect={handleUserDeselect}  // Deselect user from the list
-                onUpdateUser={handleUpdateUser}  // Update user details
-                onDeleteUser={handleDeleteUser}  // Delete user from the list
+                onUserSelect={handleUserSelect}
+                onUserDeselect={handleUserDeselect}
+                onUpdateUser={handleUpdateUser}
+                onDeleteUser={handleDeleteUser}
               />
             </div>
 

@@ -1,0 +1,53 @@
+/* Main container for Welcome Page */
+.welcome-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;  /* Full viewport height */
+  background-color: #f5f5f5;  /* Light gray background */
+  padding: 20px;
+}
+
+/* Welcome content styling */
+.welcome-content {
+  background-color: #f0f8ff;  /* Light blue background (same as user list) */
+  padding: 50px;  /* Increased padding for more space inside the box */
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 2200px;  /* Increased max-width for a bigger box */
+  margin: 0 auto;  /* Center the content horizontally */
+  text-align: center;  /* Center the header and other content */
+}
+
+/* Welcome image styling */
+.welcome-image {
+  width: 100%;
+  max-width: 650px;  /* Further decreased max-width for a smaller image */
+  margin: 20px 0;
+  border-radius: 10px;
+}
+
+/* Google button styling */
+.google-button {
+  padding: 12px 25px;  /* Increase padding for a larger button */
+  background-color: #4CAF50;  /* Green color (same as the update button) */
+  color: white;
+  font-size: 18px;  /* Increased font size for better readability */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.google-button:hover {
+  background-color: #45a049;  /* Darker green on hover (same as update button hover) */
+}
+
+/* Error message styling */
+.error-message {
+  color: red;
+  font-size: 16px;  /* Slightly larger font size for error messages */
+  margin-top: 10px;
+}

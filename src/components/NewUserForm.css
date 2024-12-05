@@ -1,11 +1,11 @@
 /* Style for the New User Form Section */
 .new-user-form-container {
   background-color: #f0f8ff; /* Light blue background */
-  padding: 20px;
+  padding: 30px;  /* Increased padding for larger spacing */
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;  /* Increased max-width for a bigger box */
   margin: 20px auto;
 }
 
@@ -16,7 +16,7 @@
   font-size: 36px;
   font-weight: bold;
   margin-top: 30px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;  /* Increased margin for spacing */
   text-transform: uppercase;
 }
 
@@ -24,11 +24,11 @@
 .new-user-form input,
 .new-user-form select {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
+  padding: 15px;  /* Increased padding for larger inputs */
+  margin: 15px 0;  /* Increased margin for spacing */
   border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+  border-radius: 8px;  /* Slightly more rounded edges */
+  font-size: 18px;  /* Larger font size for better readability */
   box-sizing: border-box;
 }
 
@@ -36,7 +36,7 @@
 .error-message {
   color: red;
   text-align: center;
-  font-size: 14px;
+  font-size: 16px;  /* Larger font size */
   margin-bottom: 15px;
 }
 
@@ -44,7 +44,7 @@
 .success-message {
   color: green;
   text-align: center;
-  font-size: 14px;
+  font-size: 16px;  /* Larger font size */
   margin-bottom: 15px;
 }
 
@@ -52,13 +52,13 @@
 .submit-button {
   background-color: #4CAF50;
   color: white;
-  padding: 10px 20px;
+  padding: 15px 25px;  /* Larger padding for a bigger button */
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   width: 100%;
-  font-size: 18px;
+  font-size: 20px;  /* Larger font size */
 }
 
 .submit-button:hover {
