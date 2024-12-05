@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import WelcomePage from './components/WelcomePage';  // Import the modified WelcomePage
+import WelcomePage from './components/WelcomePage';
 import UserList from './components/UserList';
 import TripForm from './components/TripForm';
 import TravelPlan from './components/TravelPlan';
@@ -14,9 +14,16 @@ function App() {
   const [travelPlan, setTravelPlan] = useState('');
   const [users, setUsers] = useState([]);  // For storing all users
 
+  // Refresh users from the backend
+  const refreshUsers = () => {
+    fetchAllUsers()
+      .then(setUsers)
+      .catch((err) => console.error('Error fetching users:', err));
+  };
+
   // Fetch all users when the app is loaded
   useEffect(() => {
-    fetchAllUsers().then(setUsers);
+    refreshUsers(); // Call refreshUsers on mount
   }, []);
 
   const handleTripSubmit = (trip) => {
@@ -25,16 +32,18 @@ function App() {
       trip,
     }));
 
-    generateTravelPlan(usersWithTrips).then((plans) => {
-      console.log('Generated travel plan:', plans);
-      setTravelPlan(plans);  // Set plain text travel plan
-    }).catch(error => {
-      console.error('Error generating travel plan:', error);
-    });
+    generateTravelPlan(usersWithTrips)
+      .then((plans) => {
+        console.log('Generated travel plan:', plans);
+        setTravelPlan(plans);  // Set plain text travel plan
+      })
+      .catch((error) => {
+        console.error('Error generating travel plan:', error);
+      });
   };
 
-  const handleUserAdded = (newUser) => {
-    setUsers([...users, newUser]);  // Update users list when a new user is added
+  const handleUserAdded = () => {
+    refreshUsers(); // Refresh the user list after adding a new user
   };
 
   const handleUserSelect = (user) => {
@@ -48,16 +57,16 @@ function App() {
   const handleUpdateUser = (userName) => {
     const updatedInterest = prompt('Enter new interest:');
     if (updatedInterest) {
-      updateUser(userName, { interest: updatedInterest }).then(() => {
-        fetchAllUsers().then(setUsers);  // Fetch updated users list
-      });
+      updateUser(userName, { interest: updatedInterest })
+        .then(() => refreshUsers()) // Refresh the user list
+        .catch((err) => console.error('Error updating user:', err));
     }
   };
 
   const handleDeleteUser = (userName) => {
-    deleteUser(userName).then(() => {
-      fetchAllUsers().then(setUsers);  // Fetch updated users list
-    });
+    deleteUser(userName)
+      .then(() => refreshUsers()) // Refresh the user list
+      .catch((err) => console.error('Error deleting user:', err));
   };
 
   const handleLogin = (user) => {
@@ -80,9 +89,9 @@ function App() {
               <UserList
                 users={users}
                 onUserSelect={handleUserSelect}
-                onUserDeselect={handleUserDeselect}
                 onUpdateUser={handleUpdateUser}
                 onDeleteUser={handleDeleteUser}
+                loggedUser={currentUser}
               />
             </div>
 
@@ -110,3 +119,4 @@ function App() {
 }
 
 export default App;
+

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { addUser } from '../services/api';  
-import './NewUserForm.css';  // Ensure correct path to the CSS file
+import './NewUserForm.css';
 
 function NewUserForm({ onUserAdded, userEmail }) {
   const [userName, setUserName] = useState('');
@@ -37,7 +37,7 @@ function NewUserForm({ onUserAdded, userEmail }) {
       setAge('');
       setGender('');
       setInterest('');
-      onUserAdded(newUser);  // Update parent component
+      onUserAdded(); // Refresh users list in the parent component
     } catch (err) {
       setError('Failed to add user. Please try again.');
       setSuccess('');
@@ -48,7 +48,6 @@ function NewUserForm({ onUserAdded, userEmail }) {
     <div className="new-user-form-container">
       <h2 className="new-user-form-header">Create New User</h2>
       <form onSubmit={handleSubmit} className="new-user-form">
-        
         {/* Username Input */}
         <input
           type="text"
@@ -100,3 +99,4 @@ function NewUserForm({ onUserAdded, userEmail }) {
 }
 
 export default NewUserForm;
+

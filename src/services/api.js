@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'https://project5-backend.uw.r.appspot.com';
 
 export const fetchAllUsers = async () => {
   const response = await fetch(`${BASE_URL}/findAllUsers`);
